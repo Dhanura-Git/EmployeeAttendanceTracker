@@ -11,7 +11,10 @@ const UserSchema = new mongoose.Schema({
 
     salary: { type: Number, default: 0 }, 
     salaryPayDate: { type: String }, // Store as string like "5", meaning 5th of every month
-})
+
+    joiningDate: { type: Date, default: Date.now },
+
+},{ timestamps: true })
 
 UserSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();

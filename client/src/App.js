@@ -8,9 +8,16 @@ import UserSettings from "./components/UserAuthenticated/userSettings";
 import AdminSettings from "./components/AdminAuthenticated/adminSettings";
 import AdminHolidayManager from "./components/AdminAuthenticated/adminHolidayManager";
 import AdminSalary from "./components/AdminAuthenticated/adminSalary";
+import AdminLayout from "./components/AdminAuthenticated/adminLayout";
+import AdminUsers from "./components/AdminAuthenticated/adminUsers";
+import UserHolidays from "./components/UserAuthenticated/userHolidays";
+import UserReport from "./components/UserAuthenticated/userReport";
+import AdminReport from "./components/AdminAuthenticated/adminReport";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 function App() {
     return (
@@ -25,6 +32,11 @@ function App() {
                 <Route path="/AdminSettings" element={<AdminSettings />} />
                 <Route path="/adminHolidayManager" element={<AdminHolidayManager />} />
                 <Route path="/adminSalary" element={<AdminSalary />} />
+                <Route path="/adminLayout" element={<AdminLayout />} />
+                <Route path="/adminUsers" element={<AdminUsers />} />
+                <Route path="/userHolidays" element={<UserHolidays />} />
+                <Route path="/userReport" element={<UserReport />} />
+                <Route path="/adminReport" element={<AdminReport />} />
             </Routes>
             <ToastContainer position="top-right" autoClose={3000} />
         </>

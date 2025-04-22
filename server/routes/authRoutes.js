@@ -1,6 +1,6 @@
 const express = require('express')
 const { signup, login, logout } = require('../controllers/authController')
-const { createUser,getUsers, deleteUser, getAllLeaveRequests, updateLeaveStatus, setSalaryForUser } = require('../controllers/adminController')
+const { createUser,getUsers, deleteUser, getAllLeaveRequests, updateLeaveStatus, setSalaryForUser, getUserReport, getAdminDashboardData } = require('../controllers/adminController')
 const { uploadProfilePicture,getUserProfile, changePassword } = require('../controllers/profileController')
 const { clockIn, clockOut, submitLeaveRequest, getUserAttendance, getTodayAttendanceStatus } = require("../controllers/attendanceController");
 const { addHoliday, getHolidays, deleteHoliday } = require('../controllers/holidayController')
@@ -43,6 +43,11 @@ router.delete("/holidays/:id", authMiddleware, adminMiddleware, deleteHoliday);
  
 //salary routes
 router.put("/set-salary/:userId", authMiddleware, adminMiddleware, setSalaryForUser);
+
+router.get('/report', getUserReport);
+
+router.get('/dashboard', authMiddleware, adminMiddleware, getAdminDashboardData);
+
 
 
 

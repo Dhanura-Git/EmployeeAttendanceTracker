@@ -22,14 +22,6 @@ const AdminSettings = () => {
         }
     };
 
-    const handleLogout = () => {
-        if (window.confirm("Are you sure you want to log out?")) {
-            logout();
-            alert("Logged out successfully");
-            navigate("/login");
-        }
-    };
-
     const handleProfilePictureChange = (e) => {
         setNewProfilePicture(e.target.files[0]);
     };
@@ -40,7 +32,7 @@ const AdminSettings = () => {
             alert("Please select a profile picture to upload.");
             return;
         }
-        const formData = new FormData();  
+        const formData = new FormData();
         formData.append("profilePicture", newProfilePicture);
 
         try {
@@ -74,15 +66,6 @@ const AdminSettings = () => {
 
     return (
         <Container className="mt-4">
-            <Row className="mb-4">
-                <Col>
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h2>Hello Admin</h2>
-                        <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
-                    </div>
-                </Col>
-            </Row>
-
             <Row>
                 <Col md={4} className="mb-4">
                     <Card>
@@ -110,15 +93,33 @@ const AdminSettings = () => {
                             <Form onSubmit={handleChangePassword}>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Old Password</Form.Label>
-                                    <Form.Control type="password" name="oldPassword" value={passwordForm.oldPassword} onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })} required />
+                                    <Form.Control
+                                        type="password"
+                                        name="oldPassword"
+                                        value={passwordForm.oldPassword}
+                                        onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
+                                        required
+                                    />
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>New Password</Form.Label>
-                                    <Form.Control type="password" name="newPassword" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })} required />
+                                    <Form.Control
+                                        type="password"
+                                        name="newPassword"
+                                        value={passwordForm.newPassword}
+                                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                        required
+                                    />
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Confirm New Password</Form.Label>
-                                    <Form.Control type="password" name="confirmPassword" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })} required />
+                                    <Form.Control
+                                        type="password"
+                                        name="confirmPassword"
+                                        value={passwordForm.confirmPassword}
+                                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                        required
+                                    />
                                 </Form.Group>
                                 <Button variant="primary" type="submit">Change Password</Button>
                             </Form>

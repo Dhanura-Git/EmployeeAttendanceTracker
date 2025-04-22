@@ -14,12 +14,12 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await login(formData); 
-            localStorage.setItem("role", response.role); 
+            const response = await login(formData);
+            localStorage.setItem("role", response.role);
             alert("Login successful!");
             navigate(response.role === "admin" ? "/adminDashboard" : "/userDashboard");
         } catch (error) {
-            alert(error.response.data.message || "Login failed");
+            alert(error.response?.data?.message || "Login failed");
         }
     };
 
@@ -47,12 +47,22 @@ const Login = () => {
                                 required 
                             />
                         </Form.Group>
-                        <div className="d-grid">
+                        <div className="d-grid mb-3">
                             <Button variant="primary" type="submit">
                                 Login
                             </Button>
                         </div>
                     </Form>
+
+                    <div className="text-center mt-3">
+                        <p>Not registered yet?</p>
+                        <Button 
+                            variant="secondary" 
+                            onClick={() => navigate("/signup")}
+                        >
+                            Sign Up
+                        </Button>
+                    </div>
                 </Col>
             </Row>
         </Container>

@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { logout, fetchUserProfile, uploadProfilePicture, changePassword } from "../../services/authService";
+import { fetchUserProfile, uploadProfilePicture, changePassword } from "../../services/authService";
 import { Container, Row, Col, Button, Form, Image, Card } from 'react-bootstrap';
 
 const UserSettings = () => {
     const [profilePicture, setProfilePicture] = useState(null);
     const [newProfilePicture, setNewProfilePicture] = useState(null);
     const [formData, setFormData] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    const navigate = useNavigate();
 
     useEffect(() => {
         const loadUserProfile = async () => {
@@ -20,15 +18,6 @@ const UserSettings = () => {
         };
         loadUserProfile();
     }, []);
-
-    const handleLogout = () => {
-        const confirmLogout = window.confirm("Are you sure you want to log out?");
-        if (confirmLogout) {
-            logout();
-            alert("Logged out successfully");
-            navigate("/login");
-        }
-    };
 
     const handleProfilePictureChange = (e) => {
         setNewProfilePicture(e.target.files[0]);
@@ -79,15 +68,6 @@ const UserSettings = () => {
 
     return (
         <Container className="mt-4">
-            <Row className="mb-4">
-                <Col>
-                    <div className="d-flex justify-content-between align-items-center">
-                        <h2>User Settings</h2>
-                        <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
-                    </div>
-                </Col>
-            </Row>
-
             <Row>
                 <Col md={4} className="mb-4">
                     <Card>
