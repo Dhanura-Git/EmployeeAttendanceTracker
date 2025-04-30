@@ -2,6 +2,7 @@ import { useState } from "react";
 import { signup } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { toast } from 'react-toastify'; // Import toast for notifications
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -26,10 +27,10 @@ const Signup = () => {
         e.preventDefault();
         try {
             await signup(formData);
-            alert("Signup successful! Please login.");
+            toast.success("Signup successful! Please login.");
             navigate("/login");
         } catch (error) {
-            alert(error.response.data.message || "Signup failed");
+            toast.error(error.response.data.message || "Signup failed");
         }
     };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchUsers, createUser } from "../../services/authService";
 import { fetchLeaveRequests, updateLeaveStatus } from "../../services/attendanceService";
-import { Container, Row, Col, Button, Form, Table, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form, Table } from 'react-bootstrap';
 import { toast } from "react-toastify";
 import AdminLayout from "./adminLayout";
 
@@ -153,7 +153,7 @@ const AdminUsers = () => {
                     </tbody>
                 </Table>
 
-                <h3 className="mt-4">Leave Requests</h3>
+                {/* <h3 className="mt-4">Leave Requests</h3>
                 <Table striped bordered hover>
                     <thead>
                         <tr>
@@ -170,7 +170,10 @@ const AdminUsers = () => {
                             <tr key={leave._id}>
                                 <td>{leave.userId?.username || "N/A"}</td>
                                 <td>{leave.userId?.email || "N/A"}</td>
-                                <td>{new Date(leave.date).toLocaleDateString()}</td>
+                                <td>
+                                    {leave.date?.map(d => new Date(d).toLocaleDateString()).join(", ")}
+                                </td>
+
                                 <td>{leave.leaveType}</td>
                                 <td>{leave.status}</td>
                                 <td>
@@ -188,7 +191,7 @@ const AdminUsers = () => {
                             </tr>
                         ))}
                     </tbody>
-                </Table>
+                </Table> */}
             </Container>
         </AdminLayout>
     );

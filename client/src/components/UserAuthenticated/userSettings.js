@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchUserProfile, uploadProfilePicture, changePassword } from "../../services/authService";
 import { Container, Row, Col, Button, Form, Image, Card } from 'react-bootstrap';
+import { toast } from "react-toastify"; // Import toast for notifications
 
 const UserSettings = () => {
     const [profilePicture, setProfilePicture] = useState(null);
@@ -13,7 +14,7 @@ const UserSettings = () => {
                 const userProfile = await fetchUserProfile();
                 setProfilePicture(userProfile.profilePicture);
             } catch (error) {
-                alert("Failed to fetch user profile");
+                toast.error("Failed to fetch user profile");
             }
         };
         loadUserProfile();
@@ -27,7 +28,7 @@ const UserSettings = () => {
         e.preventDefault();
 
         if (!newProfilePicture) {
-            alert("Please select a profile picture to upload.");
+            toast.warning("Please select a profile picture to upload.");
             return;
         }
         const formData = new FormData();
@@ -37,15 +38,15 @@ const UserSettings = () => {
             const response = await uploadProfilePicture(formData);
 
             if (response?.profilePicture) {
-                alert("Profile picture updated successfully");
+                toast.success("Profile picture updated successfully");
                 setProfilePicture(response.profilePicture);
                 setNewProfilePicture(null);
             } else {
-                alert("Failed to upload profile picture");
+                toast.error("Failed to upload profile picture");
             }
         } catch (error) {
             console.error("Error in profile picture upload:", error);
-            alert("Failed to upload profile picture");
+            toast.error("Failed to upload profile picture");
         }
     };
 
@@ -53,16 +54,16 @@ const UserSettings = () => {
         e.preventDefault();
 
         if (formData.newPassword !== formData.confirmPassword) {
-            alert("New passwords do not match.");
+            toast.warning("New passwords do not match.");
             return;
         }
 
         try {
             const response = await changePassword(formData);
-            alert(response.message);
+            toast.success(response.message);
             setFormData({ oldPassword: "", newPassword: "", confirmPassword: "" });
         } catch (error) {
-            alert(error.response?.data?.message || "Failed to change password");
+            toast.error(error.response?.data?.message || "Failed to change password");
         }
     };
 
@@ -146,8 +147,6 @@ const UserSettings = () => {
             </Row>
         </Container>
     );
-}
-
-
+};
 
 export default UserSettings;

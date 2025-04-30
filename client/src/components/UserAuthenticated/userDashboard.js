@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { markClockIn, markClockOut, submitLeaveRequest, fetchUserAttendance, checkClockInStatus } from "../../services/attendanceService";
 import { getHolidays } from "../../services/holidayService";
 import { Container, Row, Col, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, } from 'recharts';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import AdminLayout from "./userLayout";
 
@@ -26,8 +27,6 @@ const UserDashboard = () => {
     const [salaryDayMessage, setSalaryDayMessage] = useState("");
 
     const [chartData, setChartData] = useState([]);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -55,10 +54,9 @@ const UserDashboard = () => {
                     setHolidayRemark(todayHoliday.remark);
                 }
 
-                // ✅ Upcoming holidays (after today)
                 const futureHolidays = holidays
                     .filter(holiday => new Date(holiday.date) > new Date())
-                    .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
                 setUpcomingHolidays(futureHolidays);
             } catch (err) {
@@ -86,7 +84,7 @@ const UserDashboard = () => {
     useEffect(() => {
         const fetchAttendanceData = async () => {
             const today = new Date();
-            const month = today.getMonth() + 1; // JavaScript months are 0-based
+            const month = today.getMonth() + 1;
             const year = today.getFullYear();
 
             const data = await fetchUserAttendance(month, year);
@@ -96,7 +94,7 @@ const UserDashboard = () => {
                     date: new Date(record.date).toLocaleDateString(),
                     hours: record.totalHours || 0,
                 }))
-            );            
+            );
         };
         fetchAttendanceData();
     }, []);
@@ -110,9 +108,9 @@ const UserDashboard = () => {
                 const data = await response.json();
                 if (response.ok && data.salaryPayDate) {
                     const today = new Date();
-                    const todayDay = today.getDate(); // gives 1 to 31
+                    const todayDay = today.getDate();
 
-                    const salaryPayDay = parseInt(data.salaryPayDate, 10); // like 10
+                    const salaryPayDay = parseInt(data.salaryPayDate, 10);
 
                     if (!isNaN(salaryPayDay) && todayDay === salaryPayDay) {
                         setSalaryDayMessage("🎉 Today is your salary day!");
@@ -131,10 +129,8 @@ const UserDashboard = () => {
     const formatHoursToHHMMSS = (hours) => {
         if (!hours || hours === "N/A") return "N/A";
 
-        // Convert decimal hours to seconds
         const totalSeconds = Math.round(parseFloat(hours) * 3600);
 
-        // Format to HH:MM:SS
         const hrs = Math.floor(totalSeconds / 3600);
         const mins = Math.floor((totalSeconds % 3600) / 60);
         const secs = totalSeconds % 60;
@@ -149,16 +145,13 @@ const UserDashboard = () => {
             if (response.success) {
                 setClockedIn(true);
                 setStartTime(new Date());
-                setStatusMessage({ type: "success", text: "Successfully clocked in" });
-                // Clear success message after 3 seconds
-                setTimeout(() => setStatusMessage(null), 3000);
+                toast.success("Successfully clocked in!");
             } else {
-                setStatusMessage({ type: "danger", text: response.message });
-                setTimeout(() => setStatusMessage(null), 5000);
+                toast.error(response.message || "Clock-in failed. Please try again.");
             }
         } catch (error) {
             console.error("Clock-in failed:", error);
-            setStatusMessage({ type: "danger", text: "Clock-in failed. Please try again." });
+            toast.error("Clock-in failed. Please try again.");
         }
     };
 
@@ -170,28 +163,26 @@ const UserDashboard = () => {
                 setStartTime(null);
                 setElapsedTime(0);
                 setTotalHoursToday(response.totalHoursToday);
-                setStatusMessage({ type: "success", text: "Successfully clocked out" });
-                setTimeout(() => setStatusMessage(null), 3000);
+                toast.success("Successfully clocked out!");
             } else {
-                setStatusMessage({ type: "danger", text: response.message });
-                setTimeout(() => setStatusMessage(null), 5000);
+                toast.error(response.message || "Clock-out failed. Please try again.");
             }
         } catch (error) {
             console.error("Clock-out is failed:", error);
-            setStatusMessage({ type: "danger", text: "Clock-out failed. Please try again." });
+            toast.error("Clock-out failed. Please try again.");
         }
     };
 
     const handleSubmitLeave = async () => {
         if (!leaveReason) {
-            alert("Please select a leave type.");
+            toast.warn("Please select a leave type.");
             return;
         }
 
         const finalLeaveReason = leaveReason === "half_day" ? halfDayType : leaveReason;
 
         if (!finalLeaveReason) {
-            alert("Please select a valid Half Day type.");
+            toast.warn("Please select a valid Half Day type.");
             return;
         }
 
@@ -199,19 +190,20 @@ const UserDashboard = () => {
             const response = await submitLeaveRequest(finalLeaveReason);
             if (response.success) {
                 setShowLeaveModal(false);
-                setStatusMessage({ type: "success", text: "Leave request submitted successfully" });
+                toast.success("Leave request submitted successfully!");
             } else {
-                setStatusMessage({ type: "danger", text: response.message });
+                toast.error(response.message || "Failed to submit leave request.");
             }
         } catch (error) {
             console.error("Leave submission failed:", error);
-            setStatusMessage({ type: "danger", text: "Failed to submit leave request. Try again." });
+            toast.error("Failed to submit leave request. Try again.");
         }
     };
 
     return (
         <AdminLayout>
             <Container className="mt-4">
+                <ToastContainer position="bottom-right" autoClose={2000} />
                 <Row className="mb-4">
                     <Col>
                         <div className="d-flex justify-content-between align-items-center">
@@ -219,27 +211,6 @@ const UserDashboard = () => {
                         </div>
                     </Col>
                 </Row>
-
-                {statusMessage && (
-                    <Row className="mb-3">
-                        <Col>
-                            <Alert variant={statusMessage.type}>
-                                {statusMessage.text}
-                            </Alert>
-                        </Col>
-                    </Row>
-                )}
-
-                {salaryDayMessage && (
-                    <Row className="mb-3">
-                        <Col>
-                            <Alert variant="success">
-                                {salaryDayMessage}
-                            </Alert>
-                        </Col>
-                    </Row>
-                )}
-
 
                 <Row className="mb-3 justify-content-center">
                     <Col xs="auto" className="d-flex gap-3 justify-content-center flex-wrap">
@@ -268,40 +239,11 @@ const UserDashboard = () => {
                         </Button>
                     </Col>
                 </Row>
-
-
-                {!clockedIn && isTodayHoliday && (
-                    <Row className="mb-2 justify-content-center">
-                        <Col md="auto">
-                            <Alert variant="warning" className="text-center">
-                                🚫 Today is a holiday: <strong>{holidayRemark}</strong>. You cannot clock in.
-                            </Alert>
-                        </Col>
-                    </Row>
-                )}
-
                 <Row className="mb-4 justify-content-center">
                     <Col md="auto">
                         <h5 className="text-center">{currentTime.toLocaleString()}</h5>
                     </Col>
                 </Row>
-
-                <Row className="mb-4">
-                    <Col>
-                        <h4 className="text-center mb-3">📊 Worked Hours Summary</h4>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                                <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
-                                <Tooltip />
-                                <Bar dataKey="hours" fill="#007bff" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Col>
-                </Row>
-
-
 
                 {/* Leave Modal */}
                 <Modal show={showLeaveModal} onHide={() => setShowLeaveModal(false)}>
@@ -322,7 +264,6 @@ const UserDashboard = () => {
                                 </Form.Select>
                             </Form.Group>
 
-                            {/* Show additional dropdown for Half Day selection */}
                             {leaveReason === "half_day" && (
                                 <Form.Group className="mb-3">
                                     <Form.Label>Half Day Type</Form.Label>
@@ -331,7 +272,6 @@ const UserDashboard = () => {
                                         <option value="half_day_forenoon">Forenoon (9 AM - 2 PM)</option>
                                         <option value="half_day_afternoon">Afternoon (2 PM - 7:30 PM)</option>
                                     </Form.Select>
-
                                 </Form.Group>
                             )}
                         </Form>
@@ -344,66 +284,19 @@ const UserDashboard = () => {
 
                 <Row className="mt-4">
                     <Col>
-                        <h4 className="text-primary">📅 Upcoming Holidays</h4>
-                        {upcomingHolidays.length > 0 ? (
-                            <table className="table table-sm table-bordered mt-2">
-                                <thead className="table-light">
-                                    <tr>
-                                        <th>Sl no.</th>
-                                        <th>Date</th>
-                                        <th>Remark</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {upcomingHolidays.map((holiday, index) => (
-                                        <tr key={holiday._id}>
-                                            <td>{index + 1}</td>
-                                            <td>{new Date(holiday.date).toLocaleDateString()}</td>
-                                            <td>{holiday.remark}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p className="text-muted">No upcoming holidays.</p>
-                        )}
+                        <h4 className="text-primary">Attendance Chart</h4>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="hours" fill="#8884d8" />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </Col>
                 </Row>
 
-
-                <Row className="mt-4">
-                    <Col>
-                        <h3>Monthly Attendance Summary</h3>
-                        <table className="table table-bordered mt-3">
-                            <thead className="table-info">
-                                <tr>
-                                    <th>Sl no.</th>
-                                    <th>Date</th>
-                                    <th>Check-In</th>
-                                    <th>Check-Out</th>
-                                    <th>Total Hours</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {attendance.length > 0 ? (
-                                    attendance.map((record, index) => (
-                                        <tr key={record._id}>
-                                            <td>{index + 1}</td>
-                                            <td>{record.date.split("T")[0]}</td>
-                                            <td>{record.clockIn ? new Date(record.clockIn).toLocaleTimeString() : "N/A"}</td>
-                                            <td>{record.clockOut ? new Date(record.clockOut).toLocaleTimeString() : "Not clocked out"}</td>
-                                            <td>{formatHoursToHHMMSS(record.totalHours)}</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5" className="text-center">No attendance records found</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </Col>
-                </Row>
             </Container>
         </AdminLayout>
     );

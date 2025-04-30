@@ -51,18 +51,13 @@ const getAllLeaveRequests = async (req, res) => {
 const updateLeaveStatus = async (req, res) => {
     const { leaveId } = req.params;
     const { status } = req.body; // "Approved" or "Rejected"
-    console.log(req.body, 'reqbody in updateleavestatus');
-
 
     try {
         const leave = await Leave.findById(leaveId);
         if (!leave) {
             return res.status(404).json({ message: 'Leave request not found' });
         }
-
         leave.status = status; // Update status
-        console.log(leave, 'updateleavestatus in back');
-
         await leave.save();
 
         res.status(200).json({ message: `Leave request ${status}`, leave });

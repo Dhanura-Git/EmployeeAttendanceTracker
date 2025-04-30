@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Form, Table, Alert } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Table } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { addHoliday, getHolidays, deleteHoliday } from "../../services/holidayService";
 import AdminLayout from "./adminLayout";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 const AdminHolidayManager = () => {
     const [date, setDate] = useState(null);
     const [remark, setRemark] = useState("");
     const [holidays, setHolidays] = useState([]);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
 
     useEffect(() => {
         fetchHolidays();
@@ -21,40 +20,67 @@ const AdminHolidayManager = () => {
             const data = await getHolidays();
             setHolidays(data);
         } catch (err) {
-            setError("Failed to load holidays");
+            toast.error("Failed to load holidays");
         }
     };
 
     const handleAddHoliday = async (e) => {
         e.preventDefault();
-        setError("");
-        setSuccess("");
 
         if (!date || !remark) {
-            setError("Please select a date and enter a remark");
+            toast.error("Please select a date and enter a remark");
             return;
         }
 
         try {
             await addHoliday({ date, remark });
-            setSuccess("Holiday added successfully");
+            toast.success("Holiday added successfully");
             setDate(null);
             setRemark("");
             fetchHolidays();
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to add holiday");
+            toast.error(err.response?.data?.message || "Failed to add holiday");
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this holiday?")) return;
-
-        try {
-            await deleteHoliday(id);
-            fetchHolidays();
-        } catch {
-            setError("Failed to delete holiday");
-        }
+        const confirmationToast = toast(
+            <div>
+                <p>Are you sure you want to delete this holiday?</p>
+                <div className="d-flex gap-2">
+                    <button
+                        onClick={async () => {
+                            try {
+                                await deleteHoliday(id);
+                                fetchHolidays();
+                                toast.success("Holiday deleted successfully");
+                                toast.dismiss(confirmationToast);
+                            } catch {
+                                toast.error("Failed to delete holiday");
+                                toast.dismiss(confirmationToast);
+                            }
+                        }}
+                        className="btn btn-primary"
+                    >
+                        Yes, Delete
+                    </button>
+                    <button
+                        onClick={() => toast.dismiss(confirmationToast)}
+                        className="btn btn-secondary"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                position: "bottom-right",
+                autoClose: false,
+                closeButton: false,
+                hideProgressBar: true,
+                closeOnClick: false,
+                draggable: false,
+            }
+        );
     };
 
     return (
@@ -65,9 +91,6 @@ const AdminHolidayManager = () => {
                         <h2>Holiday Manager</h2>
                     </Col>
                 </Row>
-
-                {error && <Alert variant="danger">{error}</Alert>}
-                {success && <Alert variant="success">{success}</Alert>}
 
                 <Form onSubmit={handleAddHoliday}>
                     <Row className="align-items-end">

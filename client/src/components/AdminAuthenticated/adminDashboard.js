@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Table, Alert, Spinner } from 'react-bootstrap';
 import { getDashboardData } from "../../services/adminService";
 import AdminLayout from "./adminLayout";
+import { useNavigate } from "react-router-dom";
+
+
+import LeaveRequestModal from "./leaveRequestModal";
 
 const AdminDashboard = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -10,6 +14,8 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
 
     const monthName = new Date().toLocaleString('default', { month: 'long' });
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -65,32 +71,41 @@ const AdminDashboard = () => {
                 {/* Stats Cards */}
                 <Row className="mb-4">
                     <Col md={3}>
-                        <Card className="shadow-lg border-0">
-                            <Card.Body>
-                                <Card.Title className="text-muted">Total User</Card.Title>
-                                <h3>{dashboardData.totalUsers}</h3>
-                                <div className="text-primary small">👤 {dashboardData.activeUsers} Active User</div>
-                            </Card.Body>
-                        </Card>
+                        <div onClick={() => navigate("/adminUsers")} style={{ cursor: "pointer" }}>
+                            <Card className="shadow-lg border-0">
+                                <Card.Body>
+                                    <Card.Title className="text-muted">Total User</Card.Title>
+                                    <h3>{dashboardData.totalUsers}</h3>
+                                    <div className="text-primary small">👤 {dashboardData.activeUsers} Active User</div>
+                                </Card.Body>
+                            </Card>
+                        </div>
                     </Col>
+
                     <Col md={3}>
-                        <Card className="shadow-lg border-0">
-                            <Card.Body>
-                                <Card.Title className="text-muted">Holiday This Year</Card.Title>
-                                <h3>{dashboardData.totalHolidays}</h3>
-                                <div className="text-danger small">🌴 {dashboardData.holidaysThisMonth || 0} Holiday This Month</div>
-                            </Card.Body>
-                        </Card>
+                        <div onClick={() => navigate("/adminHolidayManager")} style={{ cursor: "pointer" }}>
+                            <Card className="shadow-lg border-0">
+                                <Card.Body>
+                                    <Card.Title className="text-muted">Holiday This Year</Card.Title>
+                                    <h3>{dashboardData.totalHolidays}</h3>
+                                    <div className="text-danger small">🌴 {dashboardData.holidaysThisMonth || 0} Holiday This Month</div>
+                                </Card.Body>
+                            </Card>
+                        </div>
                     </Col>
+
                     <Col md={3}>
-                        <Card className="shadow-lg border-0">
-                            <Card.Body>
-                                <Card.Title className="text-muted">Leave This Year</Card.Title>
-                                <h3>{dashboardData.totalLeaves}</h3>
-                                <div className="text-warning small">📝 {dashboardData.approvedLeaves || 0} Leave Granted</div>
-                            </Card.Body>
-                        </Card>
+                        <div onClick={() => navigate("/adminReport")} style={{ cursor: "pointer" }}>
+                            <Card className="shadow-lg border-0">
+                                <Card.Body>
+                                    <Card.Title className="text-muted">Leave This Year</Card.Title>
+                                    <h3>{dashboardData.totalLeaves}</h3>
+                                    <div className="text-warning small">📝 {dashboardData.approvedLeaves || 0} Leave Granted</div>
+                                </Card.Body>
+                            </Card>
+                        </div>
                     </Col>
+
                     <Col md={3}>
                         <Card className="shadow-lg border-0">
                             <Card.Body>
@@ -106,7 +121,7 @@ const AdminDashboard = () => {
                 {/* Table */}
                 <Row>
                     <Col>
-                    <h4 className="mb-3">🕒Hours Logged in {monthName}</h4>
+                        <h4 className="mb-3">🕒Hours Logged in {monthName}</h4>
                         <Table striped bordered hover>
                             <thead>
                                 <tr>

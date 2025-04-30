@@ -10,13 +10,6 @@ const UserHolidays = () => {
         const checkHolidayToday = async () => {
             try {
                 const holidays = await getHolidays();
-                const todayDate = new Date().toLocaleDateString();
-
-                const todayHoliday = holidays.find(holiday => {
-                    const holidayDate = new Date(holiday.date).toLocaleDateString();
-                    return holidayDate === todayDate;
-                });
-
 
                 // ✅ Upcoming holidays (after today)
                 const futureHolidays = holidays

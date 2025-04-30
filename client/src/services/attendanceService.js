@@ -6,11 +6,11 @@ export const markClockIn = async () => {
     try {
         const token = localStorage.getItem("token");
         console.log("Making clock-in request to:", `${API_URL}/clock-in`);
-        
+
         const response = await axios.post(`${API_URL}/clock-in`, {}, {
             headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         console.log("Clock-in response:", response.data);
         return response.data;
     } catch (error) {
@@ -47,14 +47,14 @@ export const submitLeaveRequest = async (leaveType) => {
     } catch (error) {
         return { success: false, message: error.response?.data?.message || "Failed to submit leave request" };
     }
-}; 
+};
 
 export const fetchLeaveRequests = async () => {
     try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`${API_URL}/leaves`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }); 
         return response.data;
     } catch (error) {
         console.error("Error fetching leave requests:", error.response?.data?.message || error.message);
@@ -66,8 +66,8 @@ export const updateLeaveStatus = async (leaveId, status) => {
     try {
         const token = localStorage.getItem("token");
         const response = await axios.put(
-            `${API_URL}/leaves/${leaveId}`, 
-            { status }, 
+            `${API_URL}/leaves/${leaveId}`,
+            { status },
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -103,5 +103,19 @@ export const checkClockInStatus = async () => {
     } catch (error) {
         console.error("Error checking clock-in status:", error);
         return { success: false };
+    }
+};
+
+export const submitLeaveRequestForDates = async (leaveDates, reason, leaveType) => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post( `${API_URL}/multipleDay-leave`,
+            { leaveDates, reason, leaveType }, 
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response?.data?.message || "Failed to submit leave request");
     }
 };

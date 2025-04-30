@@ -18,7 +18,7 @@ const clockIn = async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
             status: "approved"
         });
-        
+
         if (leave) {
             return res.status(403).json({
                 success: false,
@@ -30,14 +30,14 @@ const clockIn = async (req, res) => {
             userId,
             clockOut: { $exists: false }
         });
-        
+
         if (activeSession) {
             return res.status(400).json({
                 success: false,
                 message: "You're already clocked in. Please clock out first."
             });
         }
-        
+
         const now = new Date();
         const attendance = new Attendance({
             userId,
@@ -91,7 +91,7 @@ const clockOut = async (req, res) => {
         // Define today's date range for calculating total hours
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
-        
+
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
 
@@ -131,7 +131,6 @@ const clockOut = async (req, res) => {
     }
 };
 
-
 const submitLeaveRequest = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -155,6 +154,61 @@ const submitLeaveRequest = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error during leave request" });
     }
 };
+
+const multipleDayLeaveRequest = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { leaveDates, reason, leaveType } = req.body;
+
+        if (!Array.isArray(leaveDates) || leaveDates.length === 0) {
+            return res.status(400).json({ success: false, message: "Leave dates are required" });
+        }
+
+        if (!leaveType) {
+            return res.status(400).json({ success: false, message: "Leave type is required" });
+        }
+
+        // Normalize and sort dates
+        const normalizedDates = leaveDates.map(d => {
+            const dateObj = new Date(d);
+            dateObj.setHours(0, 0, 0, 0);
+            return dateObj;
+        }).sort((a, b) => a - b);
+
+        // Check for existing leaves on any of the selected dates
+        const existingLeaves = await Leave.find({
+            userId,
+            dates: { $in: normalizedDates }  // Check overlap with any other grouped leave request
+        });
+
+        if (existingLeaves.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Leave request already exists overlapping with selected dates.`
+            });
+        }
+
+        // Insert a single document
+        const leaveRequest = new Leave({
+            userId,
+            leaveType,
+            reason,
+            date: normalizedDates
+        });
+
+        await leaveRequest.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Leave request submitted successfully for selected dates."
+        });
+
+    } catch (error) {
+        console.error("Leave request error:", error);
+        return res.status(500).json({ success: false, message: "Server error during leave request" });
+    }
+};
+
 
 const getUserAttendance = async (req, res) => {
     try {
@@ -222,5 +276,6 @@ module.exports = {
     clockOut,
     submitLeaveRequest,
     getUserAttendance,
-    getTodayAttendanceStatus
+    getTodayAttendanceStatus,
+    multipleDayLeaveRequest
 };

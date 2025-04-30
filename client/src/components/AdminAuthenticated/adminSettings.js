@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { logout, fetchUserProfile, uploadProfilePicture, changePassword } from "../../services/authService";
+import { fetchUserProfile, uploadProfilePicture, changePassword } from "../../services/authService";
 import { Container, Row, Col, Button, Form, Image, Card } from 'react-bootstrap';
+import { toast } from 'react-toastify'; // Import toast for notifications
 
 const AdminSettings = () => {
     const [profilePicture, setProfilePicture] = useState(null);
     const [newProfilePicture, setNewProfilePicture] = useState(null);
     const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    const navigate = useNavigate();
 
     useEffect(() => {
         loadAdminProfile();
@@ -18,7 +17,7 @@ const AdminSettings = () => {
             const userProfile = await fetchUserProfile();
             setProfilePicture(userProfile.profilePicture);
         } catch (error) {
-            alert("Failed to fetch admin profile");
+            toast.error("Failed to fetch admin profile");
         }
     };
 
@@ -29,7 +28,7 @@ const AdminSettings = () => {
     const handleProfilePictureUpload = async (e) => {
         e.preventDefault();
         if (!newProfilePicture) {
-            alert("Please select a profile picture to upload.");
+            toast.error("Please select a profile picture to upload.");
             return;
         }
         const formData = new FormData();
@@ -38,29 +37,29 @@ const AdminSettings = () => {
         try {
             const response = await uploadProfilePicture(formData);
             if (response?.profilePicture) {
-                alert("Profile picture updated successfully");
+                toast.success("Profile picture updated successfully");
                 setProfilePicture(response.profilePicture);
                 setNewProfilePicture(null);
             } else {
-                alert("Failed to upload profile picture");
+                toast.error("Failed to upload profile picture");
             }
         } catch (error) {
-            alert("Failed to upload profile picture");
+            toast.error("Failed to upload profile picture");
         }
     };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-            alert("New passwords do not match.");
+            toast.error("New passwords do not match.");
             return;
         }
         try {
             const response = await changePassword(passwordForm);
-            alert(response.message);
+            toast.success(response.message);
             setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
         } catch (error) {
-            alert(error.response?.data?.message || "Failed to change password");
+            toast.error(error.response?.data?.message || "Failed to change password");
         }
     };
 

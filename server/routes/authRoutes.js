@@ -2,7 +2,7 @@ const express = require('express')
 const { signup, login, logout } = require('../controllers/authController')
 const { createUser,getUsers, deleteUser, getAllLeaveRequests, updateLeaveStatus, setSalaryForUser, getUserReport, getAdminDashboardData } = require('../controllers/adminController')
 const { uploadProfilePicture,getUserProfile, changePassword } = require('../controllers/profileController')
-const { clockIn, clockOut, submitLeaveRequest, getUserAttendance, getTodayAttendanceStatus } = require("../controllers/attendanceController");
+const { clockIn, clockOut, submitLeaveRequest, getUserAttendance, getTodayAttendanceStatus, multipleDayLeaveRequest } = require("../controllers/attendanceController");
 const { addHoliday, getHolidays, deleteHoliday } = require('../controllers/holidayController')
 const {authMiddleware, adminMiddleware} = require('../middleware/authMiddleware')
 const upload = require("../middleware/uploadMiddleware");
@@ -29,6 +29,7 @@ router.post('/change-password', authMiddleware, changePassword);
 router.post("/clock-in", authMiddleware, clockIn);
 router.post("/clock-out", authMiddleware, clockOut);
 router.post("/submit-leave", authMiddleware, submitLeaveRequest);
+router.post("/multipleDay-leave", authMiddleware, multipleDayLeaveRequest);
 
 router.get('/leaves', getAllLeaveRequests);
 router.put('/leaves/:leaveId', updateLeaveStatus);
